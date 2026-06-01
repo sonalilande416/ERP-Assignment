@@ -75,8 +75,9 @@ export async function signUpAction(formData: FormData) {
   }
 
   let signUpError: { message: string } | null = null;
+  let hasSession = false;
   try {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: payload.email,
       password: payload.password,
       options: {
@@ -84,12 +85,18 @@ export async function signUpAction(formData: FormData) {
       }
     });
     signUpError = error;
+    hasSession = Boolean(data.session);
   } catch (error) {
     redirect(`/login?error=${encodeURIComponent(errorMessage(error, "Signup failed."))}`);
   }
 
   if (signUpError) redirect(`/login?error=${encodeURIComponent(signUpError.message)}`);
-  redirect("/login?message=Account created successfully. You can log in now.");
+  if (hasSession) {
+    redirect("/?message=Account created successfully.");
+  }
+  redirect(
+    "/login?message=Account created successfully. Disable email confirmations in Supabase Auth to log in immediately after signup."
+  );
 }
 
 export async function signOutAction() {

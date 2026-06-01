@@ -5,3 +5,5 @@ dist
 coverage
 *.log
 _assignment_pdf_images
+
+.vercel
